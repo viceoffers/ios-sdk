@@ -15,6 +15,7 @@ public enum ViceTrackingError: Error {
     private let baseURL: String
     private let session: URLSession
     private var storedParameters: [String: String] = [:]
+    private var installToken: String?
     
     // MARK: - Initialization
     @objc public static func initialize(apiKey: String, domain: String = "prostaff.me") {
@@ -58,6 +59,7 @@ public enum ViceTrackingError: Error {
         }
     }
     
+    // Update processDeepLink to handle install token
     private func processDeepLink(_ url: URL) {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
         
@@ -65,6 +67,11 @@ public enum ViceTrackingError: Error {
         components.queryItems?.forEach { item in
             if let value = item.value {
                 params[item.name] = value
+                // Store install token separately
+                if item.name == "token" {
+                    self.installToken = value
+                    UserDefaults.standard.set(value, forKey: "ViceTrackingInstallToken")
+                }
             }
         }
         
@@ -95,10 +102,17 @@ public enum ViceTrackingError: Error {
         return info
     }
     
+    // Update sendEvent to include install token
     private func sendEvent(_ event: String, revenue: Double? = nil, completion: ((Error?) -> Void)? = nil) {
         var parameters = getDeviceInfo()
         parameters["api_key"] = apiKey
         parameters["event"] = event
+        
+        // Add install token to all events if available
+        if let token = self.installToken ?? UserDefaults.standard.string(forKey: "ViceTrackingInstallToken") {
+            parameters["install_token"] = token
+        }
+        
         parameters.merge(storedParameters) { current, _ in current }
         
         if let revenue = revenue {

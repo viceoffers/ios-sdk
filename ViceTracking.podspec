@@ -1,7 +1,7 @@
   
 Pod::Spec.new do |s|
     s.name             = 'ViceTracking'
-    s.version          = '1.0.0'
+    s.version          = '1.1.0'
     s.summary          = 'Mobile app tracking SDK for ViceOffers'
     s.description      = <<-DESC
   ViceTracking SDK allows you to track app installs and events in your iOS applications.

@@ -8,33 +8,32 @@ Track app installs and events with the ViceOffers affiliate network.
 - Xcode 13+
 - Swift 5.0+
 
+
 ## Installation
 
-### CocoaPods
+### Swift Package Manager (Recommended)
+1. In Xcode, go to File > Add Packages
+2. Enter URL: `https://github.com/viceoffers/ios-sdk`
+3. Click "Add Package"
 
-```ruby
-pod 'ViceTracking'
-```
-
-### Swift Package Manager
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/viceoffers/ios-sdk", from: "1.0.0")
-]
-```
+### Manual Installation
+1. Download `ViceTracking.swift`
+2. Add to your Xcode project
 
 ## Usage
 
-### Initialize the SDK
-
+### Initialize SDK
 ```swift
-// In AppDelegate.swift
-func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    ViceTracking.initialize(apiKey: "your-api-key")
-    return true
+import ViceTracking
+
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Initialize with your API key from ViceOffers dashboard
+        ViceTracking.initialize(apiKey: "your-api-key")
+        return true
+    }
 }
-```
 
 ### Track Install
 

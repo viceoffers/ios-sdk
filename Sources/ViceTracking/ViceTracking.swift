@@ -1,6 +1,7 @@
 import Foundation
 import AdSupport
 import AppTrackingTransparency
+import os.log
 
 public enum ViceTrackingError: Error {
     case notInitialized
@@ -61,22 +62,33 @@ public enum ViceTrackingError: Error {
     
     // Update processDeepLink to handle install token
     private func processDeepLink(_ url: URL) {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { 
+            os_log("Failed to parse deep link URL", type: .error)
+            return 
+        }
         
-        var params: [String: String] = [:]
+        // Store all deep link parameters
+        var deepLinkParams: [String: String] = [:]
         components.queryItems?.forEach { item in
             if let value = item.value {
-                params[item.name] = value
-                // Store install token separately
-                if item.name == "token" {
-                    self.installToken = value
-                    UserDefaults.standard.set(value, forKey: "ViceTrackingInstallToken")
+                deepLinkParams[item.name] = value
+                
+                // Special handling for key parameters
+                switch item.name {
+                    case "token":
+                        self.installToken = value
+                        UserDefaults.standard.set(value, forKey: "ViceTrackingInstallToken")
+                    case "click_id":
+                        UserDefaults.standard.set(value, forKey: "ViceTrackingClickId")
+                    default:
+                        break
                 }
             }
         }
         
-        UserDefaults.standard.set(params, forKey: "ViceTrackingParams")
-        self.storedParameters = params
+        // Store all deep link parameters for future events
+        UserDefaults.standard.set(deepLinkParams, forKey: "ViceTrackingDeepLinkParams")
+        os_log("Stored deep link parameters: %{public}@", type: .debug, deepLinkParams)
     }
     
     private func getDeviceInfo() -> [String: Any] {
@@ -108,12 +120,14 @@ public enum ViceTrackingError: Error {
         parameters["api_key"] = apiKey
         parameters["event"] = event
         
-        // Add install token to all events if available
-        if let token = self.installToken ?? UserDefaults.standard.string(forKey: "ViceTrackingInstallToken") {
-            parameters["install_token"] = token
+        // Add all stored deep link parameters to every event
+        if let deepLinkParams = UserDefaults.standard.dictionary(forKey: "ViceTrackingDeepLinkParams") as? [String: String] {
+            parameters["deep_link_params"] = deepLinkParams
+            
+            // Add specific parameters directly for easier access
+            parameters["click_id"] = deepLinkParams["click_id"]
+            parameters["install_token"] = deepLinkParams["token"]
         }
-        
-        parameters.merge(storedParameters) { current, _ in current }
         
         if let revenue = revenue {
             parameters["revenue"] = revenue

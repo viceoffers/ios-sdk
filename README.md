@@ -67,3 +67,16 @@ func application(_ app: UIApplication, open url: URL, options: [UIApplication.Op
 ## License
 
 MIT License. See LICENSE for details.
+
+## Changelog
+
+### 1.1.1 (2024-01-31)
+- Fixed deep link parameter handling
+- Added persistent storage of install_token and click_id
+- Improved deep link parameter passing to events
+- Enhanced logging for debugging
+
+### 1.1.0
+- Initial public release
+- Basic event tracking
+- Install attribution

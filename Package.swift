@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.3
 import PackageDescription
 
 let package = Package(
@@ -11,13 +11,12 @@ let package = Package(
             name: "ViceTracking",
             targets: ["ViceTracking"]),
     ],
-    dependencies: [],
     targets: [
         .target(
             name: "ViceTracking",
             dependencies: []),
-        .testTarget(
-            name: "ViceTrackingTests",
-            dependencies: ["ViceTracking"]),
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )
+
+// Version 1.1.1
